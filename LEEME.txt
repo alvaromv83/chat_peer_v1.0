@@ -1,28 +1,48 @@
-Chat_Peer v1.0 es un programa en lenguaje ADA, que ofrece un servicio de chat
-entre usuarios utilizando el modelo P2P descentralizado. Se ejecuta desde un
-terminal en GNU/Linux bajo la biblioteca Lower_Layer.
+Chat_Peer v2.0 es un programa en lenguaje ADA, que ofrece un servicio de chat
+entre usuarios utilizando el modelo P2P descentralizado. Mejora la versión v1.0
+de Chat-Peer para tolerar las pérdidas y desorden de los mensajes que
+intercambian los nodos. Para ello se debe indicar en la ejecución los parámetros
+de retardo mínimo y máximo de paquetes (en ms) y el porcentaje de paquetes perdidos.
+El programa simulará tanto el retardo como la pérdida de dichos paquetes.
+Además incluye las siguientes opciones:
+    - Finalizar el programa con el comando CTRL+C (alternativa a ".salir")
+    - Supernodo (mayor vecindad entre nodos) --> Se designa un nodo como
+      supernodo. Cada nuevo usuario conectado al chat recibirá de éste su lista
+      de nodos vecinos, de forma que éstos serán también vecinos del nuevo usuario.
 
-Cada usuario dentro de la red, debe compilar el programa desde un terminal y
-ejecutarlo indicando su número de puerto y nombre de usuario, así como el nombre
+Se ejecuta desde un terminal en GNU/Linux bajo la biblioteca Lower_Layer.
+
+Cada usuario dentro de la red debe compilar el programa desde un terminal y
+ejecutarlo, indicando su número de puerto y nombre de usuario, así como el nombre
 de host y número de puerto de su o sus vecinos iniciales (máximo 2), en
 caso de tenerlos. Se puede ejecutar a modo de prueba en un solo ordenador,
 utilizando un terminal diferente por usuario y la dirección IP de loopback.
 En tal caso se indicará el propio nombre de host para todos los vecinos
 iniciales, asignando un puerto diferente a cada uno.
+En caso de utilizar la opción de supernodo se deberá añadir el parámetro "-s",
+junto con el nombre de host y número de puerto del usuario designado como 
+supernodo.
 
 La información de debug está activada por defecto.
 
-Para instalar la biblioteca Lower_Layer en Linux ver "lower_layer_LEEME.txt"
+Para instalar la biblioteca Lower_Layer en GNU/Linux ver "lower_layer_LEEME.txt"
 
 Para compilar el programa (desde Lower_Layer):
 gnatmake -I/usr/local/ll/lib chat_peer.adb
 
 Para ejecutar el programa (con 0, 1 o 2 vecinos iniciales):
-./chat_peer my_port my_nickname [[neighbor1_host neighbor1_port] [neighbor2_host neighbor2_port]]
+./chat_peer_2 port nickname min_delay max_delay fault_percntg [[neighbor1_host nneighbor1_port] [neighbor2_host neighbor2_port]]
 
+Para ejecutar el programa con la opción de supernodo (sn):
+./chat_peer_2 port nickname min_delay max_delay fault_percntg [[nb1_host nb1_port] [nb2_host nb2_port] -s [sn_host sn_port]]
 
 
 EJEMPLOS DE CONFIGURACIONES
+
+- Retardo mínimo: 0 ms
+- Retardo máximo: 500 ms
+- Porcentaje de paquetes perdidos: 25%
+
 
     (1)---(4)
      |     |
@@ -30,17 +50,17 @@ EJEMPLOS DE CONFIGURACIONES
      |     |
     (3)   (6)
 
-HOST 1 --> ./chat_peer 1111 User1
+HOST 1 --> ./chat_peer_2 1111 User1 0 500 25
 
-HOST 2 --> ./chat_peer 2222 User2 <host1_name> 1111
+HOST 2 --> ./chat_peer_2 2222 User2 0 500 25 <host1_name> 1111
 
-HOST 3 --> ./chat_peer 3333 User3 <host2_name> 2222
+HOST 3 --> ./chat_peer_2 3333 User3 0 500 25 <host2_name> 2222
 
-HOST 4 --> ./chat_peer 4444 User4 <host1_name> 1111
+HOST 4 --> ./chat_peer_2 4444 User4 0 500 25 <host1_name> 1111
 
-HOST 5 --> ./chat_peer 5555 User5 <host4_name> 4444
+HOST 5 --> ./chat_peer_2 5555 User5 0 500 25 <host4_name> 4444
 
-HOST 6 --> ./chat_peer 6666 User6 <host5_name> 5555
+HOST 6 --> ./chat_peer_2 6666 User6 0 500 25 <host5_name> 5555
 
 
 
@@ -53,19 +73,19 @@ HOST 6 --> ./chat_peer 6666 User6 <host5_name> 5555
      |       |
     (3)     (6)
 
-HOST 1 --> ./chat_peer 1111 User1
+HOST 1 --> ./chat_peer_2 1111 User1 0 500 25
 
-HOST 2 --> ./chat_peer 2222 User2 <host1_name> 1111
+HOST 2 --> ./chat_peer_2 2222 User2 0 500 25 <host1_name> 1111
 
-HOST 3 --> ./chat_peer 3333 User3 <host2_name> 2222
+HOST 3 --> ./chat_peer_2 3333 User3 0 500 25 <host2_name> 2222
 
-HOST 4 --> ./chat_peer 4444 User4 
+HOST 4 --> ./chat_peer_2 4444 User4 0 500 25
 
-HOST 5 --> ./chat_peer 5555 User5 <host4_name> 4444
+HOST 5 --> ./chat_peer_2 5555 User5 0 500 25 <host4_name> 4444
 
-HOST 6 --> ./chat_peer 6666 User6 <host5_name> 5555
+HOST 6 --> ./chat_peer_2 6666 User6 0 500 25 <host5_name> 5555
 
-HOST 7 --> ./chat_peer 7777 User7 <host1_name> 1111 <host4_name> 4444
+HOST 7 --> ./chat_peer_2 7777 User7 0 500 25 <host1_name> 1111 <host4_name> 4444
 
 
 
@@ -80,15 +100,43 @@ HOST 7 --> ./chat_peer 7777 User7 <host1_name> 1111 <host4_name> 4444
           (6)
             
 
-HOST 1 --> ./chat_peer 1111 User1
+HOST 1 --> ./chat_peer_2 1111 User1 0 500 25
 
-HOST 2 --> ./chat_peer 2222 User2 <host1_name> 1111
+HOST 2 --> ./chat_peer_2 2222 User2 0 500 25 <host1_name> 1111
 
-HOST 3 --> ./chat_peer 3333 User3 <host2_name> 2222
+HOST 3 --> ./chat_peer_2 3333 User3 0 500 25 <host2_name> 2222
 
-HOST 4 --> ./chat_peer 4444 User4 <host1_name> 1111 <host3_name> 3333
+HOST 4 --> ./chat_peer_2 4444 User4 0 500 25 <host1_name> 1111 <host3_name> 3333
 
-HOST 5 --> ./chat_peer 5555 User5 <host3_name> 3333
+HOST 5 --> ./chat_peer_2 5555 User5 0 500 25 <host3_name> 3333
 
-HOST 6 --> ./chat_peer 6666 User6 <host5_name> 5555
+HOST 6 --> ./chat_peer_2 6666 User6 0 500 25 <host5_name> 5555
+
+
+-------------------- Ejemplo de configuración CON supernodo --------------------
+- Retardo mínimo: 1 ms
+- Retardo máximo: 1 ms
+- Porcentaje de paquetes perdidos: 0%
+
+
+  (1-SN)___(4)
+      | \ / |
+     (2)/_\(5)
+      | \ / | 
+     (3)/_\(6)
+     
+
+HOST 1 (SN) --> ./chat_peer_2 1111 User1-SN 1 1 0
+
+HOST 2      --> ./chat_peer_2 2222 User2 1 1 0 <host1_name> 1111 -s <host1_name> 1111
+
+HOST 3      --> ./chat_peer_2 3333 User3 1 1 0 <host2_name> 2222 -s <host1_name> 1111
+
+HOST 4      --> ./chat_peer_2 4444 User4 1 1 0 <host1_name> 1111 -s <host1_name> 1111
+
+HOST 5      --> ./chat_peer_2 5555 User5 1 1 0 <host4_name> 4444 -s <host1_name> 1111
+
+HOST 6      --> ./chat_peer_2 5555 User6 1 1 0 <host5_name> 5555 -s <host1_name> 1111
+
+
 
